@@ -14,12 +14,12 @@ pokemons: list[Pokemon] = []
 
 @app.post("/pokemon")
 def criar_pokemon():
-    dicionario_python = request.get_json()
+    dicionario_pokemon = request.get_json()
 
     novo_pokemon = Pokemon(
-    nome = dicionario_python ("nome"),
-    tipo = dicionario_python ("tipo"),
-    nivel = dicionario_python ("nivel"),
+    nome = dicionario_pokemon ("nome"),
+    tipo = dicionario_pokemon ("tipo"),
+    nivel = dicionario_pokemon ("nivel"),
     identificador = str(uuid.uuid4())
     )
 
@@ -33,5 +33,5 @@ def get_pokemon_by_id(pokemon_id):
         if pokemon.idenficador == pokemon_id:
             return jsonify(pokemon._asidct())
         
-    return jsonify({"error": "Pokémon não encontrado"}), 404
+    return jsonify({"erro": "Pokémon não encontrado"}), 404
     
