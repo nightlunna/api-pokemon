@@ -27,3 +27,6 @@ def criar_pokemon():
     return jsonify({"msg": "Pokémon criado com sucesso!", "pokemon": novo_pokemon._asdict()})
 
 
+@app.get("pokemon")
+def listar_pokemon():
+    
