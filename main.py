@@ -27,6 +27,11 @@ def criar_pokemon():
     return jsonify({"msg": "Pokémon criado com sucesso!", "pokemon": novo_pokemon._asdict()})
 
 
-@app.get("pokemon")
-def listar_pokemon():
+@app.get("/pokemon/<string:pokemon_id>")
+def get_pokemon_by_id(pokemon_id):
+    for pokemon in pokemons:
+        if pokemon.idenficador == pokemon_id:
+            return jsonify(pokemon._asidct())
+        
+    return jsonify({"error": "Pokémon não encontrado"}), 404
     
