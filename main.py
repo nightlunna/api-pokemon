@@ -8,8 +8,15 @@ class Pokemon(NamedTuple):
     nome: str
     tipo: str
     nivel: int
+    hp: int
+    ataque: int
+    defesa: int
+    ataque_especial: int
+    defesa_especial: int
+    velocidade: int
     identificador: str
-
+        
+    
 pokemons: list[Pokemon] = []
 
 @app.post("/pokemon")
@@ -19,7 +26,13 @@ def criar_pokemon():
     novo_pokemon = Pokemon(
     nome = dicionario_pokemon.get ("nome"),
     tipo = dicionario_pokemon.get ("tipo"),
-    nivel = dicionario_pokemon.get ("nivel"),
+    nivel = dicionario_pokemon.get ("nivel", 0),
+    hp = dicionario_pokemon.get ("hp", 0),
+    ataque = dicionario_pokemon.get ("ataque", 0),
+    defesa = dicionario_pokemon.get ("defesa", 0),
+    ataque_especial = dicionario_pokemon.get ("ataque_especial", 0),
+    defesa_especial = dicionario_pokemon.get ("defesa_especial", 0),
+    velocidade = dicionario_pokemon.get("velocidade", 0),
     identificador = str(uuid.uuid4())
     )
 
@@ -52,6 +65,12 @@ def atualizar_pokemon(pokemon_id):
                 nome = atualizar.get("nome", pokemon.nome),
                 tipo = atualizar.get("tipo", pokemon.tipo),
                 nivel = atualizar.get("nivel", pokemon.nivel),
+                hp = atualizar.get("hp", pokemon.hp),
+                ataque = atualizar.get("ataque", pokemon.ataque),
+                defesa = atualizar.get("defesa", pokemon.defesa),
+                ataque_especial = atualizar.get("ataque_especial", pokemon.ataque_especial),
+                defesa_especial = atualizar.get("defesa_especial", pokemon.defesa_especial),
+                velocidade = atualizar.get("velocidade", pokemon.velocidade),
                 identificador = pokemon.identificador 
             )
 
