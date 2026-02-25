@@ -35,6 +35,13 @@ def get_pokemon_by_id(pokemon_id):
         
     return jsonify({"erro": "Pokémon não encontrado"}), 404
 
+@app.get("/pokemon")
+def listar_pokemon():
+    pokemons_dicionario = [pokemon._asdict() for pokemon in pokemons]
+    
+    return jsonify(pokemons_dicionario), 200
+
+
 @app.put("/pokemon/<string:pokemon_id>")
 def atualizar_pokemon(pokemon_id):
     atualizar = request.get_json()
