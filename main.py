@@ -1,8 +1,14 @@
+import mysql.connector
 from flask import Flask, request, jsonify
 from typing import NamedTuple
 import uuid
 
 app = Flask(__name__)
+
+def conectar_bancodedados():
+    return mysql.connector.connect(
+        host = "localhost"
+    )
 
 class Pokemon(NamedTuple):
     nome: str
@@ -16,7 +22,6 @@ class Pokemon(NamedTuple):
     velocidade: int
     identificador: str
         
-    
 pokemons: list[Pokemon] = []
 
 @app.post("/pokemon")
