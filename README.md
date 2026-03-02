@@ -11,6 +11,6 @@ Um projeto Full-Stack para gerenciamento e visualização de Pokémons, contando
 
 ## Ferramentas Utilizadas
 
-* **Front-end:** Vite, React, CSS
+* **Front-end:** Vite, React, CSS  (https://github.com/nightlunna/frontend-pokemon.git)
 * **Back-end:** Python, Flask
 * **Banco de Dados:** SQL (Gerenciado via SQL Admin)
