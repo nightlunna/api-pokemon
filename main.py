@@ -1,13 +1,18 @@
 import mysql.connector
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from typing import NamedTuple
 import uuid
 
 app = Flask(__name__)
+CORS(app)
 
 def conectar_bancodedados():
     return mysql.connector.connect(
-        host = "localhost"
+        host = "localhost",
+        user = "root",
+        password = "",
+        database = "pokedex"
     )
 
 class Pokemon(NamedTuple):
@@ -21,28 +26,47 @@ class Pokemon(NamedTuple):
     defesa_especial: int
     velocidade: int
     identificador: str
+    imagem: str
         
 pokemons: list[Pokemon] = []
 
 @app.post("/pokemon")
 def criar_pokemon():
     dicionario_pokemon = request.get_json()
+    gerado_id = str(uuid.uuid4())
 
-    novo_pokemon = Pokemon(
-    nome = dicionario_pokemon.get ("nome"),
-    tipo = dicionario_pokemon.get ("tipo"),
-    nivel = dicionario_pokemon.get ("nivel", 0),
-    hp = dicionario_pokemon.get ("hp", 0),
-    ataque = dicionario_pokemon.get ("ataque", 0),
-    defesa = dicionario_pokemon.get ("defesa", 0),
-    ataque_especial = dicionario_pokemon.get ("ataque_especial", 0),
-    defesa_especial = dicionario_pokemon.get ("defesa_especial", 0),
-    velocidade = dicionario_pokemon.get("velocidade", 0),
-    identificador = str(uuid.uuid4())
-    )
+    try:
+        conn = conectar_bancodedados()
+        cursor = conn.cursor()
 
-    pokemons.append(novo_pokemon)
-    return jsonify({"msg": "Pokémon criado com sucesso!", "pokemon": novo_pokemon._asdict()}), 200
+        sql = """insert into pokemons
+        ( identificador, nome, tipo, nivel, hp, ataque, defesa, ataque_especial, defesa_especial, velocidade, imagem )
+        values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) """""
+
+        valores = (
+            gerado_id,
+            dicionario_pokemon.get ("nome"),
+            dicionario_pokemon.get ("tipo"),
+            dicionario_pokemon.get ("nivel", 0),
+            dicionario_pokemon.get ("hp", 0),
+            dicionario_pokemon.get ("ataque", 0),
+            dicionario_pokemon.get ("defesa", 0),
+            dicionario_pokemon.get ("ataque_especial", 0),
+            dicionario_pokemon.get ("defesa_especial", 0),
+            dicionario_pokemon.get("velocidade", 0),
+            dicionario_pokemon.get("imagem","" )
+        )
+  
+        cursor.execute(sql, valores)
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"msg": "Pokémon gravado no banco de dados", "id": gerado_id}), 201
+
+    except Exception as e:
+        return jsonify({"erro": f"Falha no banco: {str(e)}"}, 500)
 
 
 @app.get("/pokemon/<string:pokemon_id>")
@@ -55,9 +79,19 @@ def get_pokemon_by_id(pokemon_id):
 
 @app.get("/pokemon")
 def listar_pokemon():
-    pokemons_dicionario = [pokemon._asdict() for pokemon in pokemons]
+    try:
+        conn= conectar_bancodedados()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM pokemons")
+
+        pokemons_dicionario = cursor.fetchall()
+        cursor.close()
+        conn.close()
     
-    return jsonify(pokemons_dicionario), 200
+        return jsonify(pokemons_dicionario), 200
+    
+    except Exception as e: 
+        return jsonify({"erro": f"Pokemon não encontrado: {str(e)}"}), 500
 
 
 @app.put("/pokemon/<string:pokemon_id>")
@@ -76,7 +110,8 @@ def atualizar_pokemon(pokemon_id):
                 ataque_especial = atualizar.get("ataque_especial", pokemon.ataque_especial),
                 defesa_especial = atualizar.get("defesa_especial", pokemon.defesa_especial),
                 velocidade = atualizar.get("velocidade", pokemon.velocidade),
-                identificador = pokemon.identificador 
+                identificador = pokemon.identificador,
+                imagem = atualizar.get ("imagem", pokemon.imagem)
             )
 
             pokemons[indice] = pokemon_atualizado
