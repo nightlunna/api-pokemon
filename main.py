@@ -66,9 +66,31 @@ def criar_pokemon():
         return jsonify({"msg": "Pokémon gravado no banco de dados", "id": gerado_id}), 201
 
     except Exception as e:
-        return jsonify({"erro": f"Falha no banco: {str(e)}"}, 500)
+        return jsonify({"erro": f"Falha no banco: {str(e)}"}), 500
 
+@app.get("/pokemon/nome/<string:pokemon_nome>")
+def get_pokemon_by_nome(pokemon_nome):
+    try: 
+        conn = conectar_bancodedados()
+        cursor = conn.cursor(dictionary= True)
+        sql = "SELECT * FROM pokemons WHERE nome LIKE %s"
+        
+        valor_de_busca = (f"%{pokemon_nome}%", )
 
+        cursor.execute(sql, valor_de_busca)
+        results = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        if not results: 
+            return jsonify({"msg": "Nenhum pokémon encontrado"}), 404
+        
+        return jsonify(results), 200
+    
+    except Exception as e:
+        return jsonify({"erro": f"Falha no banco: {str(e)}"}), 500
+    
 @app.get("/pokemon/<string:pokemon_id>")
 def get_pokemon_by_id(pokemon_id):
     for pokemon in pokemons:
